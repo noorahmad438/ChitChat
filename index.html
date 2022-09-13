@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>ChitChat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            position: relative;
+            display: inline-block;
+            left: 0px;
+            margin: 0;
+            padding-bottom: 3rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        #form {
+            /* background: royalblue; */
+            padding: 0.25rem;
+            position: fixed;
+            bottom: 0px;
+            left: 0px;
+            right: 0;
+            display: flex;
+            height: 3.5rem;
+            box-sizing: border-box;
+            backdrop-filter: blur(10px);
+            width: 600px;
+        }
+        
+        #input {
+            border: 2px solid royalblue;
+            padding: 0 1rem;
+            flex-grow: 1;
+            border-radius: 4px;
+            margin: 0.25rem;
+        }
+        
+        #input:focus {
+            outline: none;
+        }
+        
+        #form>button {
+            background-color: royalblue;
+            border: none;
+            padding: 0 1rem;
+            margin: 0.25rem;
+            border-radius: 3px;
+            outline: none;
+            color: #fff;
+            width: 150px;
+            font-size: 23px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        
+        #messages {
+            list-style-type: none;
+            padding: 0;
+            width: 600px;
+            height: 600px;
+            clear: both;
+        }
+        
+        #messages>li {
+            padding: 0.5rem 1rem;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            background-color: rgb(216, 112, 147);
+            margin: 10px;
+            border-radius: 4px;
+            clear: both;
+        }
+        
+        h3 {
+            font-family: 'Courier New', Courier, monospace;
+            padding-top: 10px;
+            padding-left: 30px;
+            margin: 0px;
+            position: sticky;
+            top: 0;
+            color: white;
+            width: 94%;
+            height: 30px;
+            background-color: royalblue;
+        }
+        /* #messages>li:nth-child {
+      background-color: royalblue;
+      color: white;
+      font-family: 'Courier New', Courier, monospace;
+    } */
+    </style>
+</head>
+
+<body>
+    <h3 id="name"></h3>
+    <ul id="messages"></ul><br>
+    <form id="form" action="">
+        <input id="input" autocomplete="off" placeholder="Message" /><button>Send</button>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+
+        var messages = document.getElementById('messages');
+        var names = document.getElementById('name');
+        var form = document.getElementById('form');
+        var input = document.getElementById('input');
+        const name = prompt("Enter your name: ");
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (input.value) {
+                var item = document.createElement('li');
+                document.body.appendChild(item);
+                item.style.float = "right";
+                item.textContent = input.value;
+                messages.appendChild(item);
+                window.scrollTo(0, 600);
+                //document.documentElement.scrollTop = document.documentElement.scrollHeight;
+                socket.emit('chat message', name + ": " + input.value); // name + ": " + input.value
+                input.value = '';
+            }
+        });
+
+        socket.on('chat message', function(msg) {
+            let i = 0,
+                temp = "";
+            while (msg[i] != ':') {
+                temp += msg[i];
+                i++;
+            }
+            msg = msg.slice(i + 2)
+
+            names.innerText = temp.toUpperCase();
+            var item = document.createElement('li');
+            document.body.appendChild(item);
+            item.style.float = "left";
+            item.style.backgroundColor = "#8570d8";
+            item.textContent = msg;
+            messages.appendChild(item);
+            window.scrollTo(0, 600); //600 || document.body.scrollHeight
+
+        });
+    </script>
+</body>
+
+</html>
